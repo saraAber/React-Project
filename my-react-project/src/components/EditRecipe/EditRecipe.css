@@ -1,0 +1,238 @@
+.edit-recipe-container {
+    direction: rtl;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .page-title {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 40px;
+    position: relative;
+    padding-bottom: 15px;
+    color: #f5f5f5;
+  }
+  
+  .page-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+  }
+  
+  .recipe-form {
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.6s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .form-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .form-section:last-child {
+    border-bottom: none;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #ff7eb3;
+    position: relative;
+    padding-bottom: 10px;
+  }
+  
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+    flex: 1;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: #b0b0b0;
+    font-weight: 500;
+  }
+  
+  .ingredient-name {
+    flex: 2;
+  }
+  
+  .ingredient-count,
+  .ingredient-type {
+    flex: 1;
+  }
+  
+  .instruction-text {
+    flex: 1;
+  }
+  
+  .remove-btn {
+    align-self: flex-end;
+    margin-bottom: 20px;
+    height: 45px;
+    background: rgba(255, 82, 82, 0.2);
+    color: #ff5252;
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .remove-btn:hover {
+    background: rgba(255, 82, 82, 0.3);
+    box-shadow: 0 5px 15px rgba(255, 82, 82, 0.3);
+  }
+  
+  .add-btn {
+    margin-top: 15px;
+    background: rgba(255, 126, 179, 0.2);
+    color: #ff7eb3;
+    border: 1px solid rgba(255, 126, 179, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .add-btn:hover {
+    background: rgba(255, 126, 179, 0.3);
+    box-shadow: 0 5px 15px rgba(255, 126, 179, 0.3);
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+  }
+  
+  .error-alert {
+    background-color: rgba(255, 82, 82, 0.2);
+    color: #ff5252;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+  
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 60px;
+    font-size: 20px;
+    color: #b0b0b0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .loading::after {
+    content: "";
+    width: 60px;
+    height: 60px;
+    margin-top: 30px;
+    border: 5px solid rgba(255, 126, 179, 0.3);
+    border-radius: 50%;
+    border-top-color: #ff7eb3;
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .mt-4 {
+    margin-top: 25px;
+  }
+  
+  .form-control {
+    background-color: rgba(45, 45, 45, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f5f5f5;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus {
+    background-color: rgba(50, 50, 50, 0.8);
+    border-color: #ff7eb3;
+    box-shadow: 0 0 0 3px rgba(255, 126, 179, 0.2);
+  }
+  
+  textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+  
+    .remove-btn {
+      align-self: flex-start;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+  
+    .recipe-form {
+      padding: 30px 20px;
+    }
+  }
+  
