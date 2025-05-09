@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AddRecipe.css";
+import { Alert,  Snackbar } from "@mui/material";
 
 interface User {
   Id: number;
@@ -17,28 +18,35 @@ interface Category {
   Name: string;
 }
 
-interface Ingrident {
+interface Ingredient {
   Name: string;
   Count: number;
   Type: string;
 }
 
 interface Instructions {
-  value: string;
+  Name: string;
+  
+
 }
+// interface CategoryRes {
+//   Id: number;
+//   Name: string;
+//   UpdatedAt: string;
+//   CreatedAt: string;
+// }
 
 interface RecipeFormData {
   Id: number;
-  UserId: number;
   Name: string;
+  UserId: number;
   Description: string;
-  Difficulty: string;
+  Difficulty: "קשה" | "בינוני" | "קל",
   Duration: number;
-  Categoryid: number; // שים לב לשם
+  Categoryid: number,
   Img: string;
-  Instructions: Instructions[]; // במקום string[]
-
-  Ingridents: Ingrident[]; // שים לב לשם
+  Instructions: Instructions[];
+  Ingridents: Ingredient[],
 }
 
 interface AddRecipeProps {
@@ -47,29 +55,29 @@ interface AddRecipeProps {
 
 const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [apiError, setApiError] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>(""); // הודעת הצלחה
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
   const {
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RecipeFormData>({
     defaultValues: {
-      Id: 0,
-      UserId: 0,
-      Name: "8לןחוטיאר",
-      Description: "טארעימטואטו",
+      UserId: user?.Id,
+      Name: "האם עובד",
+      Description: "חלכיעחלדמעחל",
       Difficulty: "קל",
       Duration: 30,
       Categoryid: 1,
       Img: "https://example.com/image.jpg",
-      Instructions: [{ value: "חוטיעארכקאעט" }], // במקום string[]
-      Ingridents: [{ Name: "לוחטיאערעאיט", Count: 1, Type: "יחידה" }] // שים לב לשם
+      Instructions: [{ Name: "רכאעטיוחרכ" }],
+      Ingridents: [{ Name: "כרעאיטחררכ", Count: 1, Type: "יחידה" }]
     },
   });
 
@@ -92,56 +100,75 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
         const response = await axios.get<Category[]>("http://localhost:8080/api/category");
         setCategories(response.data);
       } catch (err) {
-        console.error("Error fetching categories:", err);
-        setApiError("שגיאה בטעינת הקטגוריות. אנא נסה שוב מאוחר יותר.");
+        console.error("שגיאה בטעינת הקטגוריות", err);
+        setApiError("שגיאה בטעינת הקטגוריות");
       }
     };
 
     fetchCategories();
   }, []);
 
+  const watchedImg = watch("Img");
+  useEffect(() => {
+  
+  }, [watchedImg]);
+
   const onSubmit = async (data: RecipeFormData) => {
+    if (!user) {
+      setApiError("יש להתחבר כדי להוסיף מתכון");
+      return;
+    }
     setIsLoading(true);
     setApiError("");
     setSuccessMessage("");
-
+  
     try {
       const recipeData = {
         Name: data.Name,
         Description: data.Description,
         Difficulty: data.Difficulty,
         Duration: data.Duration,
-        UserId: user.Id,
-        Categoryid: data.Categoryid, // ודא שאתה שולח את ה-ID של הקטגוריה
+        UserId: user?.Id,
+        Categoryid: data.Categoryid,
         Img: data.Img,
-        Instructions: data.Instructions.filter(inst => inst.value.trim() !== ""),
+        Instructions: data.Instructions.filter(inst => inst.Name.trim() !== ""),
         Ingridents: data.Ingridents.filter(ing => ing.Name.trim() !== ""),
-        
       };
-      console.log(recipeData); // בדוק את המידע לפני שליחה
+  
       const response = await axios.post("http://localhost:8080/api/recipe", recipeData);
-
-      if (response.status === 200 || response.status === 201) {
-        setSuccessMessage("המתכון נוסף בהצלחה!");
-        navigate(`/recipes?id=${response.data.Id}`);
-      } else {
-        throw new Error("שגיאה בהוספת המתכון.");
-      }
-    } catch (err: any) {
-      console.error("Error adding recipe:", err);
-      setApiError(err.response?.data?.message || "שגיאה בהוספת המתכון. אנא נסה שוב.");
+      
+      // הצגת הודעת הצלחה
+      setSuccess(true);
+      setSuccessMessage("המתכון נוסף בהצלחה!");
+  
+      // נווט לעמוד המתכונים עם מזהה המתכון החדש
+      navigate(`/recipes?id=${response.data.Id}`); 
+      
+    } catch (error) {
+      console.error("Error adding recipe:", error);
+      setApiError("הוספת המתכון נכשלה");
     } finally {
       setIsLoading(false);
     }
   };
-
+  
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(false); // כאן אתה מחזיר את הצלחה ל-false אחרי 6 שניות
+      }, 6000); // 6000 מילישניות = 6 שניות
+  
+      return () => clearTimeout(timer); // לנקות את הטיימר אם הקומפוננטה מתעדכנת
+    }
+  }, [success]);
+    
 
   return (
     <div className="add-recipe-container">
       <h2 className="page-title">הוספת מתכון חדש</h2>
 
       {apiError && <div className="error-alert">{apiError}</div>}
-      {successMessage && <div className="success-alert">{successMessage}</div>} {/* הצג הודעת הצלחה */}
+      {successMessage && <div className="success-alert">{successMessage}</div>}
 
       <form onSubmit={handleSubmit(onSubmit)} className="recipe-form">
         <div className="form-section">
@@ -206,7 +233,7 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
               <select id="CategoryId" className="form-control" {...register("Categoryid", { required: "שדה חובה" })}>
                 <option value="">בחר קטגוריה</option>
                 {categories.map((category) => (
-                  <option key={category.Id} value={category.Id}> {/* כאן אתה משתמש ב-ID */}
+                  <option key={category.Id} value={category.Id}>
                     {category.Name}
                   </option>
                 ))}
@@ -234,6 +261,7 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
           </div>
         </div>
 
+       
         <div className="form-section">
           <h3 className="section-title">מצרכים</h3>
 
@@ -246,7 +274,7 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
                     id={`Ingrident.${index}.Name`}
                     type="text"
                     className="form-control"
-                    {...register(`Ingridents.${index}.Name` as const, {
+                    {...register(`Ingridents.${index}.Name`, {
                       required: "שדה חובה",
                     })}
                   />
@@ -263,7 +291,7 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
                     className="form-control"
                     min="0.1"
                     step="0.1"
-                    {...register(`Ingridents.${index}.Count` as const, {
+                    {...register(`Ingridents.${index}.Count`, {
                       required: "שדה חובה",
                       min: { value: 0.1, message: "הכמות חייבת להיות חיובית" },
                     })}
@@ -278,7 +306,7 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
                   <select
                     id={`Ingrident.${index}.Type`}
                     className="form-control"
-                    {...register(`Ingridents.${index}.Type` as const, {
+                    {...register(`Ingridents.${index}.Type`, {
                       required: "שדה חובה",
                     })}
                   >
@@ -321,18 +349,18 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
             <div key={field.id} className="instruction-row">
               <div className="form-row">
                 <div className="form-group instruction-text">
-                  <label htmlFor={`Instructions.${index}.value`}>שלב {index + 1}</label>
+                  <label htmlFor={`Instructions.${index}.Name`}>שלב {index + 1}</label>
                   <textarea
-                    id={`Instructions.${index}.value`}
+                    id={`Instructions.${index}.Name`}
                     className="form-control"
                     rows={2}
-                    {...register(`Instructions.${index}.value` as const, {
+                    {...register(`Instructions.${index}.Name`, {
                       required: "שדה חובה",
-                      minLength: { value: 5, message: "ההוראה חייבת להכיל לפחות 5 תווים" },
+                     
                     })}
                   ></textarea>
-                  {errors.Instructions?.[index]?.value && (
-                    <p className="error-message">{errors.Instructions[index]?.value?.message}</p>
+                  {errors.Instructions?.[index]?.Name && (
+                    <p className="error-message">{errors.Instructions[index]?.Name?.message}</p>
                   )}
                 </div>
 
@@ -352,7 +380,7 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
           <button
             type="button"
             className="btn btn-secondary add-btn"
-            onClick={() => appendInstruction({ value: "" })} // הוסף הוראה חדשה ריקה
+            onClick={() => appendInstruction({ Name: "" })}
           >
             הוסף שלב
           </button>
@@ -367,22 +395,23 @@ const AddRecipe: React.FC<AddRecipeProps> = ({ user }) => {
           </button>
         </div>
       </form>
+      // ה-Snackbar שלך
+<Snackbar
+  open={success}
+  autoHideDuration={6000}
+  onClose={() => setSuccess(false)}
+  anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+>
+  <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: "100%" }}>
+    {successMessage} {/* כאן אתה מציג את הודעת ההצלחה */}
+  </Alert>
+</Snackbar>
+
     </div>
+    
   );
+  
+    
 };
 
 export default AddRecipe;
-
-
-
-
-
-
-
-
-
-
-
-
-
-

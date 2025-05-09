@@ -14,8 +14,8 @@ interface Recipe {
     Categoryid: number;
     UserId: number;
     Img: string;
-    Instructions: string[];
-    Ingrident: Ingredient[];
+    Instructions: Instructions[];
+    Ingridents: Ingredient[];
 }
 
 interface Ingredient {
@@ -24,6 +24,9 @@ interface Ingredient {
     Type: string;
 }
 
+interface Instructions {
+    Name: string;
+}
 interface Category {
     Id: number;
     Name: string;
@@ -33,16 +36,17 @@ interface User {
     Name: string
     Username: string
     Email: string
-  }
+}
 
-  interface RecipeListProps {
+interface RecipeListProps {
     user: User | null
-  }
+}
 interface Filters {
     category: string;
     difficulty: string;
     duration: string;
     creator: string;
+    sortOrder: string; // הוספת שדה לסדר
 }
 
 const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
@@ -58,6 +62,7 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
         difficulty: "",
         duration: "",
         creator: "",
+        sortOrder: "",
     });
 
     const navigate = useNavigate();
@@ -110,6 +115,7 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
             difficulty: "",
             duration: "",
             creator: "",
+            sortOrder: "",
         });
     };
 
@@ -151,11 +157,18 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
         );
     });
 
+    // סידור המתכונים לפי הסדר שנבחר
+    if (filters.sortOrder === "newest") {
+        filteredRecipes.sort((a, b) => b.Id - a.Id); // סידור מהחדש לישן
+    } else if (filters.sortOrder === "alphabetical") {
+        filteredRecipes.sort((a, b) => a.Name.localeCompare(b.Name)); // סידור לפי אלפבית
+    }
+
     const difficultyLevels = [...new Set(recipes.map((recipe) => recipe.Difficulty))];
 
     return (
         <div className="recipe-list-container">
-            <h2 className="page-title">מתכונים</h2>
+            <h2 className="page-title">חפש מתכון</h2>
 
             {isLoading ? (
                 <div className="loading">טוען מתכונים...</div>
@@ -200,7 +213,52 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
                             </select>
                         </div>
 
-                        {/* שאר הפילטרים */}
+                        <div className="filter-group">
+                            <label htmlFor="duration">משך זמן:</label>
+                            <select
+                                id="duration"
+                                name="duration"
+                                value={filters.duration}
+                                onChange={handleFilterChange}
+                                className="filter-select"
+                            >
+                                <option value="">הכל</option>
+                                <option value="short">עד 30 דקות</option>
+                                <option value="medium">30-60 דקות</option>
+                                <option value="long">מעל 60 דקות</option>
+                            </select>
+                        </div>
+
+                        <div className="filter-group">
+                            <label htmlFor="creator">נוצר על ידי:</label>
+                            <select
+                                id="creator"
+                                name="creator"
+                                value={filters.creator}
+                                onChange={handleFilterChange}
+                                className="filter-select"
+                            >
+                                <option value="">הכל</option>
+                                <option value="me">אני</option>
+                                <option value="others">אחרים</option>
+                            </select>
+                        </div>
+
+                        <div className="filter-group">
+                            <label htmlFor="sortOrder">סדר:</label>
+                            <select
+                                id="sortOrder"
+                                name="sortOrder"
+                                value={filters.sortOrder}
+                                onChange={handleFilterChange}
+                                className="filter-select"
+                            >
+                                <option value="">ברירת מחדל</option>
+                                <option value="newest">החדש ביותר</option>
+                                <option value="alphabetical">לפי אלפבית</option>
+                            </select>
+                        </div>
+
                         <button onClick={resetFilters} className="btn btn-secondary reset-btn">
                             אפס פילטרים
                         </button>
@@ -288,11 +346,10 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
                                     <div className="recipe-modal-body">
                                         <div className="recipe-modal-image">
                                             <img
-                                                src={selectedRecipe.Img ? selectedRecipe.Img : defaultImage} // השתמש בקישור אם קיים, אחרת השתמש בתמונה המקומית
+                                                src={selectedRecipe.Img ? selectedRecipe.Img : defaultImage}
                                                 alt={selectedRecipe.Name}
                                                 className="recipe-image"
                                             />
-
                                         </div>
 
                                         <div className="recipe-modal-description">
@@ -303,9 +360,9 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
                                         <div className="recipe-modal-ingredients">
                                             <h3>מצרכים</h3>
                                             <ul>
-                                                {selectedRecipe.Ingrident?.map((ingredient, index) => (
+                                                {selectedRecipe.Ingridents?.map((ingredients, index) => (
                                                     <li key={index}>
-                                                        {ingredient.Name}: {ingredient.Count} {ingredient.Type}
+                                                        {ingredients.Name}: {ingredients.Count} {ingredients.Type}
                                                     </li>
                                                 ))}
                                             </ul>
@@ -315,7 +372,7 @@ const RecipeList: React.FC<RecipeListProps> = ({ user }) => {
                                             <h3>הוראות הכנה</h3>
                                             <ol>
                                                 {selectedRecipe.Instructions?.map((instruction, index) => (
-                                                    <li key={index}>{instruction}</li>
+                                                    <li key={index}>{instruction.Name}</li>
                                                 ))}
                                             </ol>
                                         </div>

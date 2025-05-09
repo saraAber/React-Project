@@ -351,17 +351,6 @@
     padding-bottom: 10px;
   }
   
-  .recipe-modal-description h3::after,
-  .recipe-modal-ingredients h3::after,
-  .recipe-modal-instructions h3::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50px;
-    height: 2px;
-    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
-  }
   
   .recipe-modal-description p {
     line-height: 1.8;

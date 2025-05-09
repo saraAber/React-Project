@@ -36,7 +36,7 @@ const Home: React.FC = () => {
       try {
         const response = await axios.get<Recipe[]>("http://localhost:8080/api/recipe")
         // לקיחת 3 מתכונים אקראיים להצגה בדף הבית
-        const randomRecipes = response.data.sort(() => 0.5 - Math.random()).slice(0,2)
+        const randomRecipes = response.data.sort(() => 0.5 - Math.random()).slice(0,3)
         setFeaturedRecipes(randomRecipes)
         setIsLoading(false)
       } catch (err) {
@@ -58,7 +58,7 @@ const Home: React.FC = () => {
             
           </p>
           <Link to="/recipes" className="btn btn-primary hero-btn">
-            גלו מתכונים
+            לכל המתכונים
           </Link>
         </div>
       </section>
